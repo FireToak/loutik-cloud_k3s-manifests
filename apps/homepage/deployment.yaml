@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: homepage-launcher-admin
+  name: homepage-admin
   namespace: site-internet
   labels:
-    app: homepage-launcher-admin
+    app: homepage-admin
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: homepage-launcher-admin
+      app: homepage-admin
   template:
     metadata:
       labels:
-        app: homepage-launcher-admin
+        app: homepage-admin
     spec:
       containers:
-      - name: homepage-launcher-admin
+      - name: homepage-admin
         image: ghcr.io/gethomepage/homepage:latest
         env:
           - name: HOMEPAGE_ALLOWED_HOSTS
@@ -34,47 +34,47 @@ spec:
             protocol: TCP
         volumeMounts:
           - mountPath: /app/config/custom.js
-            name: homepage-config
+            name: homepage-admin-config
             subPath: custom.js
           - mountPath: /app/config/custom.css
-            name: homepage-config
+            name: homepage-admin-config
             subPath: custom.css
           - mountPath: /app/config/bookmarks.yaml
-            name: homepage-config
+            name: homepage-admin-config
             subPath: bookmarks.yaml
           - mountPath: /app/config/docker.yaml
-            name: homepage-config
+            name: homepage-admin-config
             subPath: docker.yaml
           - mountPath: /app/config/kubernetes.yaml
-            name: homepage-config
+            name: homepage-admin-config
             subPath: kubernetes.yaml
           - mountPath: /app/config/services.yaml
-            name: homepage-config
+            name: homepage-admin-config
             subPath: services.yaml
           - mountPath: /app/config/settings.yaml
-            name: homepage-config
+            name: homepage-admin-config
             subPath: settings.yaml
           - mountPath: /app/config/widgets.yaml
-            name: homepage-config
+            name: homepage-admin-config
             subPath: widgets.yaml
           - mountPath: /app/config/logs
             name: logs
       volumes:
-      - name: homepage-config
+      - name: homepage-admin-config
         configMap:
-          name: homepage-config
+          name: homepage-admin-config
       - name: logs
         emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: homepage-launcher-admin
+  name: homepage-admin
   namespace: site-internet
 spec:
   type: ClusterIP
   selector:
-    app: homepage-launcher-admin
+    app: homepage-admin
   ports:
     - protocol: TCP
       port: 80
