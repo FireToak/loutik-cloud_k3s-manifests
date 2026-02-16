@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homepage-launcher-admin
+  namespace: site-internet
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`launcher-admin.loutik.fr`)
+      kind: Rule
+      middlewares:
+        - name: authentik-forwardauth
+      services:
+        - name: homepage-launcher-admin
+          port: 80

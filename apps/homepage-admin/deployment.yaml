@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage-launcher-admin
+  namespace: site-internet
+  labels:
+    app: homepage-launcher-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage-launcher-admin
+  template:
+    metadata:
+      labels:
+        app: homepage-launcher-admin
+    spec:
+      containers:
+      - name: homepage-launcher-admin
+        image: ghcr.io/gethomepage/homepage:latest
+        env:
+          - name: HOMEPAGE_ALLOWED_HOSTS
+            value: launcher-admin.loutik.fr
+        resources:
+          requests:
+            memory: "60Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - name: http
+            containerPort: 3000
+            protocol: TCP
+        volumeMounts:
+          - mountPath: /app/config/custom.js
+            name: homepage-config
+            subPath: custom.js
+          - mountPath: /app/config/custom.css
+            name: homepage-config
+            subPath: custom.css
+          - mountPath: /app/config/bookmarks.yaml
+            name: homepage-config
+            subPath: bookmarks.yaml
+          - mountPath: /app/config/docker.yaml
+            name: homepage-config
+            subPath: docker.yaml
+          - mountPath: /app/config/kubernetes.yaml
+            name: homepage-config
+            subPath: kubernetes.yaml
+          - mountPath: /app/config/services.yaml
+            name: homepage-config
+            subPath: services.yaml
+          - mountPath: /app/config/settings.yaml
+            name: homepage-config
+            subPath: settings.yaml
+          - mountPath: /app/config/widgets.yaml
+            name: homepage-config
+            subPath: widgets.yaml
+          - mountPath: /app/config/logs
+            name: logs
+      volumes:
+      - name: homepage-config
+        configMap:
+          name: homepage-config
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage-launcher-admin
+  namespace: site-internet
+spec:
+  type: ClusterIP
+  selector:
+    app: homepage-launcher-admin
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      name: http
