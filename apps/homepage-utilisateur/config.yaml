@@ -6,14 +6,14 @@ metadata:
 data:
   settings.yaml: |
     title: Admin | Launcher LoutikCLOUD
-    favicon: https://raw.githubusercontent.com/firetoak/loutik-cloud_launcher-admin/main/assets/logo_loutik-health.png
+    favicon: https://raw.githubusercontent.com/firetoak/medias/main/logo/logo_loutikhealth.png
     headerStyle: boxed
     hideVersion: true
     disableIndexing: true
 
   widgets.yaml: |
     - logo:
-        icon: https://raw.githubusercontent.com/firetoak/loutik-cloud_launcher-admin/main/assets/logo_loutik-health.png
+        icon: https://raw.githubusercontent.com/firetoak/medias/main/logo/logo_loutikhealth.png
     - datetime:
         text_size: xl
         format:
@@ -24,33 +24,19 @@ data:
         target: _blank 
 
   services.yaml: |
-    - Hyperviseur & Orchestrateur:
-      - PVE Darlene:
-          href: https://pve-darlene.loutik.fr
-          siteMonitor: https://pve-darlene.loutik.fr
+    - Site internet :
+      - Documentation:
+          href: https://docs.loutik.fr
+          siteMonitor: https://docs.loutik.fr
           icon: proxmox
-      - PVE Gideon:
-          href: https://pve-gideon.loutik.fr
-          siteMonitor: https://pve-gideon.loutik.fr
+      - Site vitrine:
+          href: https://www.loutik.fr
+          siteMonitor: https://www.loutik.fr
           icon: proxmox
-    - Réseau:
-        - OPNsense:
-            href: https://routeur.loutik.fr
-            siteMonitor: https://routeur.loutik.fr
-            icon: opnsense
-        - Switch Zyxel:
-            href: https://switch.loutik.fr
-            siteMonitor: https://switch.loutik.fr
-            icon: zyxel-networks
-    - Services:
-        - Grafana (Supervision):
-            href: https://supervision.loutik.fr
-            siteMonitor: https://supervision.loutik.fr
-            icon: grafana
-        - Authentik (SSO):
-            href: https://sso.loutik.fr
-            siteMonitor: https://supervision.loutik.fr
-            icon: authentik
+      - Portfolio:
+          href: https://louis.loutik.fr
+          siteMonitor: https://louis.loutik.fr
+          icon: proxmox
 
   bookmarks.yaml: |
     - Sécurité:
