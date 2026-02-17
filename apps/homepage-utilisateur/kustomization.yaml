@@ -7,7 +7,7 @@ resources:
   - ingress.yaml
 
 configMapGenerator:
-  - name: homepage-admin-config
+  - name: homepage-config
     namespace: site-internet
     files:
       - settings.yaml
