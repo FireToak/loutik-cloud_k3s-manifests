@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: site-vitrine-loutik
-          image: ghcr.io/firetoak/site-vitrine-loutik:1.0.0 # {"$imagepolicy": "flux-system:site-vitrine-loutik"}
+          image: ghcr.io/firetoak/site-vitrine-loutik:1.0.1 # {"$imagepolicy": "flux-system:site-vitrine-loutik"}
           ports:
             - containerPort: 80
           resources:
