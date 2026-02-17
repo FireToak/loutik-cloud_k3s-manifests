@@ -1,0 +1,12 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/settings/
+
+title: Launcher LoutikCLOUD
+favicon: https://raw.githubusercontent.com/firetoak/medias/main/logo/logo_loutikhealth.png
+
+headerStyle: boxed
+
+hideVersion: true
+
+disableIndexing: false

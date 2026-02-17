@@ -1,0 +1,17 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- Site internet :
+    - Documentation:
+        href: https://docs.loutik.fr
+        siteMonitor: https://docs.loutik.fr
+        icon: proxmox
+    - Site vitrine:
+        href: https://www.loutik.fr
+        siteMonitor: https://www.loutik.fr
+        icon: proxmox
+    - Portfolio:
+        href: https://louis.loutik.fr
+        siteMonitor: https://louis.loutik.fr
+        icon: proxmox
