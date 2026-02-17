@@ -1,0 +1,14 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/info-widgets/
+
+- logo:
+    icon: https://raw.githubusercontent.com/firetoak/medias/main/logo/logo_loutikhealth.png
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      hourCycle: h23
+- search:
+    provider: duckduckgo
+    target: _blank 

@@ -1,0 +1,31 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- Hyperviseur & Orchestrateur:
+  - PVE Darlene:
+      href: https://pve-darlene.loutik.fr
+      siteMonitor: https://pve-darlene.loutik.fr
+      icon: proxmox
+  - PVE Gideon:
+      href: https://pve-gideon.loutik.fr
+      siteMonitor: https://pve-gideon.loutik.fr
+      icon: proxmox
+- Réseau:
+    - OPNsense:
+        href: https://routeur.loutik.fr
+        siteMonitor: https://routeur.loutik.fr
+        icon: opnsense
+    - Switch Zyxel:
+        href: https://switch.loutik.fr
+        siteMonitor: https://switch.loutik.fr
+        icon: zyxel-networks
+- Services:
+    - Grafana (Supervision):
+        href: https://supervision.loutik.fr
+        siteMonitor: https://supervision.loutik.fr
+        icon: grafana
+    - Authentik (SSO):
+        href: https://sso.loutik.fr
+        siteMonitor: https://sso.loutik.fr
+        icon: authentik

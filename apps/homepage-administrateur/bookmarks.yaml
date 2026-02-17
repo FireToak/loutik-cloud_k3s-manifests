@@ -1,0 +1,15 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/bookmarks
+
+- Sécurité:
+    - Tailscale (VPN):
+        - icon: tailscale-light
+          href: https://login.tailscale.com/admin/machines
+    - Crowdsec (WAF):
+        - icon: crowdsec
+          href: https://app.crowdsec.net/security-engines
+- Administration:
+    - Documentation LoutikCLOUD:
+        - icon: gitbook
+          href: https://docs.loutik.fr/docs/intro/
