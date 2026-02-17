@@ -5,7 +5,7 @@ metadata:
   namespace: site-internet
 data:
   settings.yaml: |
-    title: Admin | Launcher LoutikCLOUD
+    title: Launcher LoutikCLOUD
     favicon: https://raw.githubusercontent.com/firetoak/medias/main/logo/logo_loutikhealth.png
     headerStyle: boxed
     hideVersion: true
