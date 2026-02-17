@@ -2,18 +2,10 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/bookmarks
 
-- Developer:
+- Fondateur LoutikCLOUD:
     - Github:
-        - abbr: GH
-          href: https://github.com/
-
-- Social:
-    - Reddit:
-        - icon: reddit.png
-          href: https://reddit.com/
-          description: The front page of the internet
-
-- Entertainment:
-    - YouTube:
-        - abbr: YT
-          href: https://youtube.com/
+        - icon: github
+          href: https://github.com/FireToak
+    - LinkedIn:
+        - icon: linkedin
+          href: https://www.linkedin.com/in/louismedo/
