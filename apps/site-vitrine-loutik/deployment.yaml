@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-vitrine-loutik
+  namespace: site-internet
+  labels:
+    app: site-vitrine-loutik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: site-vitrine-loutik
+  template:
+    metadata:
+      labels:
+        app: site-vitrine-loutik
+    spec:
+      containers:
+        - name: site-vitrine-loutik
+          image: ghcr.io/firetoak/site-vitrine-loutik:1.0.0 # {"$imagepolicy": "flux-system:site-vitrine-loutik"}
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: site-vitrine-loutik
+  namespace: site-internet
+spec:
+  type: ClusterIP
+  selector:
+    app: site-vitrine-loutik
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
