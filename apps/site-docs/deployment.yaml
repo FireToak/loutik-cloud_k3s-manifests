@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-docs
+  namespace: site-internet
+  labels:
+    app: site-docs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: site-docs
+  template:
+    metadata:
+      labels:
+        app: site-docs
+    spec:
+      containers:
+        - name: site-docs
+          image: ghcr.io/firetoak/site-docs-loutik:1.0.0 # {"$imagepolicy": "flux-system:site-docs"}
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: site-docs
+  namespace: site-internet
+spec:
+  type: ClusterIP
+  selector:
+    app: site-docs
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

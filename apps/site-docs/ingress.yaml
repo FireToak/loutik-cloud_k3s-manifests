@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: site-docs
+  namespace: site-internet
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: host(`docs.loutik.lab`)
+      kind: Rule
+      services:
+        - name: site-docs
+          port: 80
