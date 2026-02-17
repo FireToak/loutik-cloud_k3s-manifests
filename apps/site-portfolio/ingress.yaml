@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: portfolio
+  namespace: site-internet
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: host(`louis.loutik.lab`)
+      kind: Rule
+      services:
+        - name: portfolio
+          port: 80
