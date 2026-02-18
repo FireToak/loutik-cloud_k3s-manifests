@@ -8,7 +8,7 @@ resources:
   - milddleware.yaml
 
 configMapGenerator:
-  - name: homepage-admin
+  - name: homepage-admin-config
     namespace: site-internet
     files:
       - settings.yaml
