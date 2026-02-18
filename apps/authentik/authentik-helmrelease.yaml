@@ -54,7 +54,7 @@ spec:
         ingressClassName: traefik
         enabled: true
         hosts:
-          - sso.loutik.fr
+          - sso.loutik.lab
 
     redis:
       enabled: true
