@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discord-bot-plc
+  namespace: discord-bot
+spec:
+  selector:
+    matchLabels:
+      app: discord-bot-plc
+  template:
+    metadata:
+      labels:
+        app: discord-bot-plc
+    spec:
+      containers:
+      - name: discord-bot-plc
+        image: ghcr.io/lycee-paul-louis-courier-bts-sio/discord-bot-plc:1.0.0 # {"$imagepolicy": "flux-system:discord-bot-plc"}
+        envFrom:
+          - secretRef:
+              name: secret-discord-bot-plc
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "25m"
