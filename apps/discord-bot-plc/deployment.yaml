@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: discord-bot-plc
-        image: ghcr.io/lycee-paul-louis-courier-bts-sio/discord-bot-plc:1.0.0 # {"$imagepolicy": "flux-system:discord-bot-plc"}
+        image: ghcr.io/lycee-paul-louis-courier-bts-sio/discord-bot-plc:1.0.1 # {"$imagepolicy": "flux-system:discord-bot-plc"}
         envFrom:
-          - secretRef:
-              name: secret-discord-bot-plc
+        - secretRef:
+            name: secret-discord-bot-plc
         resources:
           limits:
             memory: "512Mi"
