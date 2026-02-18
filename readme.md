@@ -6,298 +6,191 @@
 
 Ce dépôt contient l'ensemble des **manifestes Kubernetes** déployés sur l'infrastructure **LoutikCLOUD**. Il constitue la source de vérité pour toutes les ressources Kubernetes gérées par FluxCD via GitOps.
 
-## Architecture du dépôt
+---
+
+## Arborescence du dépôt
 
 ```text
 loutik-cloud_k3s-manifests/
+├── readme.md
 ├── apps/
-│   ├── <nom-du-service>/
+│   ├── authentik/
+│   │   ├── authentik-helmrelease.yaml
+│   │   ├── kustomization.yaml
+│   │   └── namespace.yaml
+│   ├── discord-bot-plc/
 │   │   ├── deployment.yaml
-│   │   ├── service.yaml
-│   │   └── ingress.yaml
+│   │   └── namespace.yaml
+│   ├── homepage-administrateur/
+│   │   ├── bookmarks.yaml
+│   │   ├── custom.css
+│   │   ├── custom.js
+│   │   ├── deployment.yaml
+│   │   ├── docker.yaml
+│   │   ├── ingress.yaml
+│   │   ├── kubernetes.yaml
+│   │   ├── kustomization.yaml
+│   │   ├── middleware.yaml
+│   │   ├── namespace.yaml
+│   │   ├── services.yaml
+│   │   ├── settings.yaml
+│   │   └── widgets.yaml
+│   ├── homepage-utilisateur/
+│   │   └── [fichiers similaires à homepage-administrateur]
+│   ├── portfolio-louis/
+│   ├── site-docs/
+│   │   ├── deployment.yaml
+│   │   ├── ingress.yaml
+│   │   └── namespace.yaml
+│   ├── site-portfolio/
+│   │   ├── deployment.yaml
+│   │   ├── ingress.yaml
+│   │   └── namespace.yaml
+│   └── site-vitrine-loutik/
+│       ├── deployment.yaml
+│       ├── ingress.yaml
+│       └── namespace.yaml
 └── infrastructure/
+    ├── monitoring/
+    │   └── information.md
+    └── traefik/
+        ├── kustomization.yaml
+        └── traefik-config.yaml
 ```
 
-## Structure détaillée
+### Description des dossiers
 
-### 📁 `apps/`
+**`apps/`**  
+Répertoire centralisant toutes les **applications métiers** de la plateforme LoutikCLOUD. Chaque application dispose de son propre sous-dossier contenant ses ressources Kubernetes (Deployment, Service, Ingress, Namespace, ConfigMap, etc.). Cette organisation garantit l'isolation et facilite la maintenance individuelle de chaque service. Certaines applications utilisent des fichiers de configuration spécifiques (fichiers YAML de configuration Homepage, fichiers CSS/JS custom) ou des HelmRelease pour les déploiements Helm.
 
-Répertoire centralisant toutes les **applications métiers** de la plateforme LoutikCLOUD.
-
-**Principes d'organisation :**
-- Un sous-dossier par application
-- Isolation complète de chaque service
-- Facilite la gestion des versions et des rollbacks
-
-**Exemples d'applications :**
-- `apps/outline/` : Wiki collaboratif
-- `apps/homepage/` : Dashboard d'accueil
-- `apps/vaultwarden/` : Gestionnaire de mots de passe
-- `apps/nextcloud/` : Stockage et collaboration
-
----
-
-### 📁 `apps/<nom-du-service>/`
-
-Dossier dédié contenant **exclusivement les ressources Kubernetes** d'une application spécifique.
-
-**Contenu standard :**
-- Manifestes de déploiement (Deployment, StatefulSet)
-- Configuration réseau (Service, Ingress)
-- Ressources optionnelles (ConfigMap, Secret, PVC)
-
-**Isolation :**
-- ✅ Chaque application est autonome
-- ✅ Pas de dépendances inter-dossiers
-- ✅ Facilite le debug et la maintenance
-
----
-
-### 📄 `apps/<nom-du-service>/deployment.yaml`
-
-Fichier définissant la **création et la gestion des Pods** de l'application.
-
-**Responsabilités :**
-- Spécifie l'image Docker à déployer
-- Configure les ressources (CPU, RAM)
-- Définit les variables d'environnement
-- Gère la stratégie de déploiement (RollingUpdate, Recreate)
-
-**Point clé - Intégration Keel :**
-
-C'est dans ce fichier que les **annotations Keel** doivent être ajoutées pour automatiser la mise à jour des images Docker :
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: homepage
-  namespace: default
-  annotations:
-    keel.sh/policy: all         # Politique de mise à jour automatique
-    keel.sh/trigger: poll       # Mode de détection (poll ou webhook)
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: homepage
-  template:
-    metadata:
-      labels:
-        app: homepage
-    spec:
-      containers:
-      - name: homepage
-        image: ghcr.io/gethomepage/homepage:latest
-        ports:
-        - containerPort: 3000
-```
-
-**Annotations Keel disponibles :**
-- `keel.sh/policy: all` : Met à jour toutes les versions (latest, tags)
-- `keel.sh/policy: major` : Uniquement les versions majeures (v2.x.x)
-- `keel.sh/policy: minor` : Uniquement les versions mineures (v1.2.x)
-- `keel.sh/policy: patch` : Uniquement les patches (v1.0.1)
-- `keel.sh/trigger: poll` : Polling régulier du registry
-- `keel.sh/pollSchedule: "@every 5m"` : Fréquence de polling personnalisée
-
----
-
-### 📄 `apps/<nom-du-service>/service.yaml`
-
-Fichier exposant l'application sur le **réseau interne du cluster**.
-
-**Fonction :**
-- Crée un point d'entrée stable pour l'application
-- Fournit un load-balancing automatique entre les Pods
-- Permet la communication inter-services
-
-**Exemple :**
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: homepage
-  namespace: default
-spec:
-  selector:
-    app: homepage
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
-  type: ClusterIP
-```
-
-**Types de Service courants :**
-- `ClusterIP` : Accès interne uniquement (par défaut)
-- `NodePort` : Expose le service sur un port de chaque nœud
-- `LoadBalancer` : Provisionne un load balancer externe
-
----
-
-### 📄 `apps/<nom-du-service>/ingress.yaml`
-
-Fichier de **routage HTTP/HTTPS** permettant de rendre l'application accessible depuis l'extérieur du cluster.
-
-**Fonction :**
-- Expose l'application via un nom de domaine
-- Gère le TLS/SSL (certificats)
-- Configure le routage basé sur les paths ou hosts
-
-**Exemple :**
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: homepage
-  namespace: default
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-spec:
-  ingressClassName: traefik
-  rules:
-  - host: home.loutik.cloud
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: homepage
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - home.loutik.cloud
-    secretName: homepage-tls
-```
-
-**Annotations courantes :**
-- `cert-manager.io/*` : Gestion automatique des certificats SSL
-- `traefik.ingress.kubernetes.io/*` : Configuration spécifique à Traefik
-- `nginx.ingress.kubernetes.io/*` : Configuration spécifique à NGINX Ingress
-
----
-
-### 📁 `infrastructure/`
-
-Dossier réservé aux **outils et composants transverses** nécessaires au bon fonctionnement du cluster.
-
-**Contenu type :**
-- Keel (automatisation des mises à jour d'images)
-- Cert-manager (gestion des certificats SSL)
-- Monitoring (Prometheus, Grafana)
-- Ingress controllers (Traefik, NGINX)
-- Opérateurs Kubernetes
-
-**Caractéristiques :**
-- Indépendant des applications métiers
-- Services partagés par toutes les applications
-- Configuration globale du cluster
-
-**Exemple d'arborescence :**
-```text
-infrastructure/
-├── keel/
-│   ├── deployment.yaml
-│   └── service.yaml
-├── cert-manager/
-│   └── cluster-issuer.yaml
-└── monitoring/
-    ├── prometheus/
-    └── grafana/
-```
-
----
-
-## Workflow de déploiement
-
-```mermaid
-graph LR
-    A[Développeur push manifests] --> B[GitHub: k3s-manifests]
-    B --> C[FluxCD détecte changement]
-    C --> D[FluxCD applique manifests]
-    D --> E[Kubernetes reconcilie état]
-    E --> F[Application déployée]
-    G[Keel surveille registries] --> H[Nouvelle image détectée]
-    H --> I[Keel met à jour Deployment]
-    I --> C
-```
-
-1. **Développeur** modifie un manifeste et push sur `k3s-manifests`
-2. **FluxCD** détecte le changement (polling Git)
-3. **FluxCD** applique les manifestes modifiés
-4. **Kubernetes** reconcilie l'état souhaité
-5. **Keel** surveille les registries Docker en arrière-plan
-6. **Keel** met à jour automatiquement les images selon les annotations
+**`infrastructure/`**  
+Dossier réservé aux **composants transverses et outils de cluster** indispensables au bon fonctionnement de l'infrastructure. Il héberge les configurations de services partagés comme Traefik (ingress controller), le monitoring (Prometheus, Grafana), et d'autres outils système. Ces composants sont indépendants des applications métiers et fournissent des fonctionnalités globales au cluster.
 
 ---
 
 ## Ajouter une nouvelle application
 
-### 1. Créer la structure de dossiers
+> **Prérequis** : Disposer d'une image Docker dans un registry accessible (Docker Hub, GHCR, GitLab Registry) ou d'une chart Helm pour l'application.
+
+### 1️⃣ Créer la structure de l'application
 
 ```bash
-mkdir -p apps/<nom-service>
-cd apps/<nom-service>
+# Se positionner à la racine du dépôt
+cd loutik-cloud_k3s-manifests
+
+# Créer le dossier de l'application
+mkdir -p apps/<nom-du-service>
+cd apps/<nom-du-service>
 ```
 
-### 2. Créer les manifestes de base
+### 2️⃣ Créer le fichier `namespace.yaml`
 
-**`deployment.yaml`** :
+Isoler chaque application dans son propre namespace est une bonne pratique.
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: <nom-du-service>
+  labels:
+    app: <nom-du-service>
+```
+
+### 3️⃣ Créer le fichier `deployment.yaml`
+
+Ce fichier définit les Pods de l'application.
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: <nom-service>
-  namespace: default
-  annotations:
-    keel.sh/policy: minor
-    keel.sh/trigger: poll
+  name: <nom-du-service>
+  namespace: <nom-du-service>
+  labels:
+    app: <nom-du-service>
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: <nom-service>
+      app: <nom-du-service>
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   template:
     metadata:
       labels:
-        app: <nom-service>
+        app: <nom-du-service>
     spec:
       containers:
-      - name: <nom-service>
+      - name: <nom-du-service>
         image: <registry>/<image>:<tag>
         ports:
-        - containerPort: <port>
+        - containerPort: <port-application>
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: EXAMPLE_VAR
+          value: "example-value"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
 ```
 
-**`service.yaml`** :
+### 4️⃣ Créer le fichier `service.yaml` (optionnel si pas d'Ingress)
+
+Ce fichier expose l'application sur le réseau interne du cluster.
+
 ```yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: <nom-service>
-  namespace: default
+  name: <nom-du-service>
+  namespace: <nom-du-service>
+  labels:
+    app: <nom-du-service>
 spec:
   selector:
-    app: <nom-service>
+    app: <nom-du-service>
   ports:
-  - port: 80
-    targetPort: <port>
+  - protocol: TCP
+    port: 80
+    targetPort: <port-application>
+    name: http
   type: ClusterIP
 ```
 
-**`ingress.yaml`** :
+### 5️⃣ Créer le fichier `ingress.yaml`
+
+Ce fichier rend l'application accessible depuis l'extérieur via un nom de domaine.
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: <nom-service>
-  namespace: default
+  name: <nom-du-service>
+  namespace: <nom-du-service>
+  labels:
+    app: <nom-du-service>
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   ingressClassName: traefik
   rules:
@@ -308,240 +201,315 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: <nom-service>
+            name: <nom-du-service>
             port:
               number: 80
   tls:
   - hosts:
     - <service>.loutik.cloud
-    secretName: <nom-service>-tls
+    secretName: <nom-du-service>-tls
 ```
 
-### 3. Créer la Kustomization FluxCD
+### 6️⃣ (Optionnel) Créer un fichier `kustomization.yaml`
 
-Dans le dépôt `flux-system`, créer `apps/<nom-service>-kustomization.yaml` (voir documentation `flux-system`).
+Si l'application nécessite Kustomize pour gérer des ConfigMaps ou des ressources multiples :
 
-### 4. Commit et push
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: <nom-du-service>
+
+resources:
+- namespace.yaml
+- deployment.yaml
+- service.yaml
+- ingress.yaml
+
+configMapGenerator:
+- name: <nom-du-service>-config
+  files:
+  - config.yaml
+```
+
+### 7️⃣ (Alternative) Utiliser Helm avec HelmRelease
+
+Pour les applications déployées via Helm Chart :
+
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: <nom-du-service>
+  namespace: <nom-du-service>
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: <chart-name>
+      version: <chart-version>
+      sourceRef:
+        kind: HelmRepository
+        name: <repository-name>
+        namespace: flux-system
+  values:
+    # Configuration spécifique de la chart
+    replicaCount: 1
+    image:
+      repository: <registry>/<image>
+      tag: <tag>
+```
+
+### 8️⃣ Valider localement les manifestes
 
 ```bash
-git add apps/<nom-service>
-git commit -m "feat: add <nom-service> manifests"
+# Vérifier la syntaxe YAML
+yamllint apps/<nom-du-service>/
+
+# Valider avec Kubernetes (dry-run)
+kubectl apply --dry-run=client -f apps/<nom-du-service>/
+
+# Si utilisation de Kustomize
+kubectl kustomize apps/<nom-du-service>/ | kubectl apply --dry-run=client -f -
+```
+
+### 9️⃣ Créer la Kustomization FluxCD
+
+Dans le dépôt `loutik-cloud_k3s-flux-system`, créer le fichier `apps/<nom-du-service>-kustomization.yaml` :
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: <nom-du-service>
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: manifests
+  path: ./apps/<nom-du-service>
+  prune: true
+  wait: true
+  timeout: 5m
+```
+
+### 🔟 Commit et déploiement
+
+```bash
+# Depuis le dépôt k3s-manifests
+git add apps/<nom-du-service>
+git commit -m "feat: add <nom-du-service> manifests"
+git push
+
+# Depuis le dépôt flux-system
+git add apps/<nom-du-service>-kustomization.yaml
+git commit -m "feat: add <nom-du-service> kustomization"
 git push
 ```
 
-FluxCD déploiera automatiquement l'application dans les minutes qui suivent.
+FluxCD détectera automatiquement les changements et déploiera l'application dans les **minutes suivantes**.
 
----
+### 1️⃣1️⃣ Vérifier le déploiement
 
-## Bonnes pratiques
-
-### Organisation
-- ✅ **Un dossier par application** dans `apps/`
-- ✅ **Nommage cohérent** : lowercase, tirets
-- ✅ **Séparer apps et infrastructure** clairement
-
-### Manifestes
-- ✅ **Toujours spécifier les namespaces** explicitement
-- ✅ **Définir les resource limits** (CPU, RAM)
-- ✅ **Utiliser des labels** pour faciliter le filtrage
-- ✅ **Ajouter des annotations** pour la documentation
-
-### Keel
-- ✅ **Choisir la bonne policy** selon la criticité
-- ✅ **Tester en staging** avant production
-- ✅ **Éviter `policy: all`** pour les apps critiques
-- ✅ **Privilégier les tags sémantiques** aux `latest`
-
-### Sécurité
-- ✅ **Ne jamais commiter de secrets** en clair
-- ✅ **Utiliser SealedSecrets** ou External Secrets
-- ✅ **Activer TLS** sur tous les Ingress
-- ✅ **Limiter les permissions** (RBAC)
-
----
-
-## Commandes utiles
-
-### Validation locale
 ```bash
-# Valider la syntaxe YAML
-yamllint apps/
+# Surveiller la réconciliation FluxCD
+flux get kustomizations -w
 
-# Dry-run Kubernetes
-kubectl apply --dry-run=client -f apps/<service>/
+# Vérifier les ressources créées
+kubectl get all -n <nom-du-service>
 
-# Vérifier avec kustomize
-kustomize build apps/<service>/
-```
+# Vérifier les pods
+kubectl get pods -n <nom-du-service>
 
-### Debug en production
-```bash
-# Voir les ressources déployées
-kubectl get all -n default -l app=<service>
+# Consulter les logs
+kubectl logs -n <nom-du-service> -l app=<nom-du-service> --tail=50 -f
 
-# Logs de l'application
-kubectl logs -n default -l app=<service> --tail=100
-
-# Décrire le déploiement
-kubectl describe deployment <service> -n default
-
-# Voir les événements
-kubectl get events -n default --sort-by='.lastTimestamp'
-```
-
-### Keel
-```bash
-# Vérifier le statut de Keel
-kubectl logs -n kube-system -l app=keel
-
-# Forcer une vérification d'image
-kubectl annotate deployment <service> force-update="$(date)"
+# Tester l'accès externe
+curl https://<service>.loutik.cloud
 ```
 
 ---
 
-## Exemple complet : Application Homepage
+## Rappel des bonnes pratiques
 
-### Structure des fichiers
-```text
-apps/homepage/
-├── deployment.yaml
-├── service.yaml
-└── ingress.yaml
+### 📂 Organisation des fichiers
+- ✅ **Un namespace dédié par application** (`namespace.yaml`)
+- ✅ **Nommage cohérent** : lowercase avec tirets (ex: `site-vitrine-loutik`)
+- ✅ **Séparer clairement** `apps/` et `infrastructure/`
+- ✅ **Utiliser Kustomize** quand l'application nécessite des ConfigMaps ou plusieurs ressources
+
+### 📝 Manifestes Kubernetes
+- ✅ **Toujours spécifier le namespace** explicitement dans chaque ressource
+- ✅ **Définir les resource requests et limits** (CPU, RAM) dans les Deployments
+- ✅ **Utiliser des labels cohérents** (`app: <nom-du-service>`)
+- ✅ **Configurer les health checks** (livenessProbe, readinessProbe)
+- ✅ **Stratégie RollingUpdate** avec `maxUnavailable: 0` pour zero-downtime
+
+### 🔐 Sécurité
+- ✅ **Ne jamais commiter de secrets en clair** (utiliser SealedSecrets ou External Secrets Operator)
+- ✅ **Activer TLS sur tous les Ingress** (annotation cert-manager)
+- ✅ **Utiliser des images avec tags spécifiques** plutôt que `latest`
+- ✅ **Appliquer le principe du moindre privilège** (RBAC, SecurityContext)
+
+### 🎯 Configuration avancée
+- ✅ **Middleware Traefik** pour authentification centralisée (voir `homepage-administrateur`)
+- ✅ **HelmRelease** pour applications complexes nécessitant Helm
+- ✅ **ConfigMaps montés** pour fichiers de configuration (CSS, JS, YAML)
+
+### 🔄 Gestion des versions
+- ✅ **Commits sémantiques** : `feat:`, `fix:`, `chore:`, `docs:`
+- ✅ **Messages descriptifs** incluant le nom du service
+- ✅ **Tester localement** avant de push (dry-run)
+
+---
+
+## Debug
+
+### Vérifier l'état de FluxCD
+
+```bash
+# Vue d'ensemble de toutes les ressources FluxCD
+flux get all
+
+# Vérifier les Kustomizations
+flux get kustomizations
+
+# Vérifier les sources Git
+flux get sources git
+
+# Logs des controllers FluxCD
+flux logs --level=error --all-namespaces
 ```
 
-### `deployment.yaml`
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: homepage
-  namespace: default
-  annotations:
-    keel.sh/policy: minor
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 10m"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: homepage
-  template:
-    metadata:
-      labels:
-        app: homepage
-    spec:
-      containers:
-      - name: homepage
-        image: ghcr.io/gethomepage/homepage:v0.8.0
-        ports:
-        - containerPort: 3000
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+### Forcer la réconciliation
+
+```bash
+# Forcer la réconciliation d'une source Git
+flux reconcile source git manifests
+
+# Forcer la réconciliation d'une Kustomization
+flux reconcile kustomization <nom-du-service> --with-source
+
+# Forcer la réconciliation de l'App of Apps
+flux reconcile kustomization apps-sync --with-source
 ```
 
-### `service.yaml`
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: homepage
-  namespace: default
-spec:
-  selector:
-    app: homepage
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
-  type: ClusterIP
+### Debug d'une application spécifique
+
+```bash
+# Vérifier le statut de la Kustomization
+kubectl describe kustomization <nom-du-service> -n flux-system
+
+# Voir les événements du namespace
+kubectl get events -n <nom-du-service> --sort-by='.lastTimestamp'
+
+# Vérifier les pods
+kubectl get pods -n <nom-du-service>
+
+# Logs d'un pod
+kubectl logs -n <nom-du-service> <pod-name> --tail=100 -f
+
+# Décrire un pod en erreur
+kubectl describe pod -n <nom-du-service> <pod-name>
 ```
 
-### `ingress.yaml`
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: homepage
-  namespace: default
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-spec:
-  ingressClassName: traefik
-  rules:
-  - host: home.loutik.cloud
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: homepage
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - home.loutik.cloud
-    secretName: homepage-tls
+### Debug Ingress et réseau
+
+```bash
+# Vérifier les Ingress
+kubectl get ingress -n <nom-du-service>
+
+# Décrire un Ingress
+kubectl describe ingress <nom-du-service> -n <nom-du-service>
+
+# Vérifier les certificats TLS
+kubectl get certificate -n <nom-du-service>
+
+# Logs de Traefik
+kubectl logs -n kube-system -l app.kubernetes.io/name=traefik --tail=100
+```
+
+### Suspendre/Reprendre un déploiement
+
+```bash
+# Suspendre une Kustomization (empêche FluxCD de réconcilier)
+flux suspend kustomization <nom-du-service>
+
+# Reprendre une Kustomization
+flux resume kustomization <nom-du-service>
+```
+
+### Vérifier l'utilisation des ressources
+
+```bash
+# CPU et RAM par pod
+kubectl top pods -n <nom-du-service>
+
+# CPU et RAM par node
+kubectl top nodes
 ```
 
 ---
 
-## Dépannage
+## Workflow
 
-### L'application ne démarre pas
-```bash
-# Vérifier les Pods
-kubectl get pods -n default -l app=<service>
-
-# Voir les logs
-kubectl logs -n default <pod-name>
-
-# Vérifier les événements
-kubectl describe pod -n default <pod-name>
+```mermaid
+graph TD
+    A[Développeur modifie manifests] -->|git push| B[GitHub: k3s-manifests]
+    B -->|polling 1min| C[FluxCD détecte changement]
+    C --> D[FluxCD lit apps-sync.yaml]
+    D --> E[FluxCD surveille apps/]
+    E --> F[FluxCD lit source-manifests.yaml]
+    F -->|clone| G[Dépôt k3s-manifests]
+    E --> H[FluxCD lit <service>-kustomization.yaml]
+    H --> I{Type de ressource?}
+    I -->|Manifestes K8s| J[Apply manifests]
+    I -->|HelmRelease| K[Installe Helm Chart]
+    I -->|Kustomization| L[Build Kustomize puis Apply]
+    J --> M[Kubernetes reconcilie état]
+    K --> M
+    L --> M
+    M --> N[Pods créés/mis à jour]
+    N --> O[Service expose l'app]
+    O --> P[Ingress + TLS actif]
+    P --> Q[Application accessible]
+    
+    style B fill:#0366d6,color:#fff
+    style C fill:#28a745,color:#fff
+    style M fill:#ffa500,color:#fff
+    style Q fill:#28a745,color:#fff
 ```
 
-### Problème d'accès Ingress
-```bash
-# Vérifier l'Ingress
-kubectl get ingress -n default
+### Étapes détaillées du workflow
 
-# Vérifier le certificat TLS
-kubectl get certificate -n default
-
-# Logs du contrôleur Ingress
-kubectl logs -n kube-system -l app.kubernetes.io/name=traefik
-```
-
-### Keel ne met pas à jour
-```bash
-# Vérifier les annotations
-kubectl get deployment <service> -o yaml | grep keel
-
-# Logs Keel
-kubectl logs -n kube-system -l app=keel --tail=50
-
-# Forcer un poll
-kubectl annotate deployment <service> keel.sh/force-update="true" --overwrite
-```
+1. **Modification des manifestes** : Le développeur modifie/ajoute des fichiers dans `loutik-cloud_k3s-manifests`
+2. **Push vers GitHub** : Les changements sont committés et pushés sur le dépôt Git
+3. **Détection par FluxCD** : FluxCD poll le dépôt Git toutes les minutes (configurable)
+4. **Lecture de apps-sync.yaml** : FluxCD lit le fichier principal qui pointe vers `apps/`
+5. **Surveillance du dossier apps/** : FluxCD surveille tous les fichiers Kustomization dans `apps/`
+6. **Clone du dépôt** : FluxCD clone/met à jour sa copie locale du dépôt
+7. **Traitement des Kustomizations** : Pour chaque `*-kustomization.yaml` trouvé :
+   - Manifestes Kubernetes standards → Apply direct
+   - HelmRelease → Installation via Helm
+   - Kustomization → Build puis Apply
+8. **Réconciliation Kubernetes** : Kubernetes compare l'état souhaité vs actuel
+9. **Déploiement** : Les Pods sont créés/mis à jour selon la stratégie définie
+10. **Exposition** : Le Service rend l'app accessible en interne
+11. **Ingress + TLS** : Traefik route le trafic externe + Cert-Manager génère les certificats
+12. **Application opérationnelle** : L'application est accessible via son URL publique
 
 ---
 
 ## Liens utiles
 
 - [Documentation Kubernetes](https://kubernetes.io/docs/)
-- [Keel Documentation](https://keel.sh/)
+- [Documentation FluxCD](https://fluxcd.io/docs/)
 - [Cert-Manager](https://cert-manager.io/)
+- [Traefik Documentation](https://doc.traefik.io/traefik/)
 - Dépôt FluxCD : [loutik-cloud_k3s-flux-system](https://github.com/FireToak/loutik-cloud_k3s-flux-system)
 
 ---
 
 **Maintenu par l'équipe DevOps LoutikCLOUD 🦥**
 
-*Dernière mise à jour : 16 février 2026*
+*Dernière mise à jour : 18 février 2026*
