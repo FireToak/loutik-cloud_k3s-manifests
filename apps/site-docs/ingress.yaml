@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: host(`docs.loutik.lab`)
+    - match: host(`docs.loutik.fr`)
       kind: Rule
       services:
         - name: site-docs

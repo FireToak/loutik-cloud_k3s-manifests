@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`launcher.loutik.lab`)
+    - match: Host(`launcher.loutik.fr`)
       kind: Rule
       services:
         - name: homepage-launcher

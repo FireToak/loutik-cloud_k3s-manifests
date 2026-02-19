@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: host(`louis.loutik.lab`)
+    - match: host(`louis.loutik.fr`)
       kind: Rule
       services:
         - name: portfolio

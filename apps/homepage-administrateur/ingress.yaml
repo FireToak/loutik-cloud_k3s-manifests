@@ -7,10 +7,10 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`launcher-admin.loutik.lab`)
+    - match: Host(`launcher-admin.loutik.fr`)
       kind: Rule
-      #middlewares:
-      #  - name: authentik-forwardauth
+      middlewares:
+        - name: authentik-forwardauth
       services:
         - name: homepage-admin
           port: 80
