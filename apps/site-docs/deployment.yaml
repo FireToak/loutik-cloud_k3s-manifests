@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: site-docs
-          image: ghcr.io/firetoak/site-docs-loutik:1.0.1 # {"$imagepolicy": "flux-system:site-docs"}
+          image: ghcr.io/firetoak/site-docs-loutik:1.0.3 # {"$imagepolicy": "flux-system:site-docs"}
           ports:
             - containerPort: 80
           resources:
