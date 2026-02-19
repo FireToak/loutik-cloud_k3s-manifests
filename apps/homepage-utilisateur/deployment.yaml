@@ -20,7 +20,7 @@ spec:
         image: ghcr.io/gethomepage/homepage:latest
         env:
           - name: HOMEPAGE_ALLOWED_HOSTS
-            value: launcher.loutik.lab
+            value: launcher.loutik.fr
         resources:
           requests:
             memory: "60Mi"
