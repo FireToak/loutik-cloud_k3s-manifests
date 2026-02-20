@@ -10,7 +10,3 @@
 
 - logo:
     icon: https://raw.githubusercontent.com/firetoak/medias/main/logo/logo_loutikhealth.png
-
-- search:
-    provider: duckduckgo
-    target: _blank
