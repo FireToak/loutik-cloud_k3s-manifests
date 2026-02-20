@@ -13,3 +13,19 @@
     - Documentation LoutikCLOUD:
         - icon: gitbook
           href: https://docs.loutik.fr/docs/intro/
+    - Enregistrement DNS:
+        - icon: cloudflare
+          href: https://dash.cloudflare.com/02ad4284a080b2f5a407f165778d629f/loutik.fr/dns/records
+    - Dashboard VPS:
+        - icon: infomaniak-k
+          href: https://manager.infomaniak.com/v3/887489/ng/admin3/cloud/40818/dashboard
+- IA :
+    - Gemini:
+        - icon: google-gemini
+          href: https://gemini.google.com
+    - Claude:
+        - icon: claude-ai-light
+          href: https://claude.ai
+    - ChatGPT:
+        - icon: chatgpt
+          href: https://chatgpt.com
