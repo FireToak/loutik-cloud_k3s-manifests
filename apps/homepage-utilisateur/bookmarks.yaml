@@ -2,10 +2,13 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/bookmarks
 
-- Fondateur LoutikCLOUD:
+- Réseaux sociaux:
     - Github:
         - icon: github
           href: https://github.com/FireToak
     - LinkedIn:
         - icon: linkedin
           href: https://www.linkedin.com/in/louismedo/
+    - YouTube:
+        - icon: youtube
+          href: https://www.youtube.com/@FireToak
