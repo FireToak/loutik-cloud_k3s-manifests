@@ -6,12 +6,12 @@
     - Documentation:
         href: https://docs.loutik.fr
         siteMonitor: https://docs.loutik.fr
-        icon: proxmox
+        icon: https://docs.loutik.fr
     - Site vitrine:
         href: https://www.loutik.fr
         siteMonitor: https://www.loutik.fr
-        icon: proxmox
+        icon: https://www.loutik.fr
     - Portfolio:
         href: https://louis.loutik.fr
         siteMonitor: https://louis.loutik.fr
-        icon: proxmox
+        icon: https://louis.loutik.fr
